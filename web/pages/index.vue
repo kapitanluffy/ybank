@@ -16,9 +16,8 @@
           ></b-form-input>
         </b-form-group>
 
-        <b-button nuxt-link :to="'/accounts/' + accountID" variant="primary"
-          >Login</b-button
-        >
+        <b-button nuxt-link :to="'/accounts/' + accountID" variant="primary">Login</b-button>
+        <b-button nuxt-link :to="'/accounts/create'" variant="primary">Create Account</b-button>
       </b-form>
     </div>
   </div>

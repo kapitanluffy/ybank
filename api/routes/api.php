@@ -26,6 +26,15 @@ Route::get('accounts/{id}', function ($id) {
     return $account;
 });
 
+Route::post('accounts/', function (Request $request) {
+    $name = $request->input('name');
+    $balance = $request->input('balance');
+
+    $account = ['name' => $name, 'balance' => $balance];
+    $account['id'] = DB::table('accounts')->insertGetId($account);
+
+    return $account;
+});
 Route::get('accounts/{id}/transactions', function ($id) {
     $account = DB::table('accounts')->find($id);
 
