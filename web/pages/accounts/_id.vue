@@ -159,6 +159,9 @@ export default {
 
       axios
         .post(process.env.API_SERVER + `/api/accounts/${this.$route.params.id}/transactions`, this.payment)
+        .then(function(response) {
+          that.getTransactions()
+        })
         .catch(function(error) {
           that.hasErrorMessage = true;
           that.errorMessage = error.response.data.error;
@@ -166,39 +169,6 @@ export default {
 
       that.payment = {};
       that.show = false;
-
-      // update items
-      setTimeout(() => {
-        axios
-          .get(api_server + `/api/accounts/${this.$route.params.id}`)
-          .then(function(response) {
-            that.account = response.data;
-          })
-          .catch(function(error) {
-            window.location = "/";
-          });
-
-        axios
-          .get(api_server + `/api/accounts/${that.$route.params.id}/transactions`)
-          .then(function(response) {
-            that["transactions"] = response.data;
-
-            var transactions = [];
-            for (let i = 0; i < that.transactions.length; i++) {
-              that.transactions[i].amount =
-                (that.account.currency === "usd" ? "$" : "€") +
-                that.transactions[i].amount;
-
-              if (that.account.id != that.transactions[i].to) {
-                that.transactions[i].amount = "-" + that.transactions[i].amount;
-              }
-
-              transactions.push(that.transactions[i]);
-            }
-
-            that.transactions = transactions;
-          });
-      }, 200);
     }
   }
 };
