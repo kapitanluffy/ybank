@@ -134,15 +134,17 @@ export default {
 
           var transactions = [];
           for (let i = 0; i < that.transactions.length; i++) {
-            that.transactions[i].amount =
-              (that.account.currency === "usd" ? "$" : "€") +
-              that.transactions[i].amount;
+            let row = [];
+            row['Recipient'] = that.transactions[i].recipient.name;
+            row['Sender'] = that.transactions[i].sender.name;
+            row['Details'] = that.transactions[i].details;
+            row['Amount'] = (that.account.currency === "usd" ? "$" : "€") + that.transactions[i].amount;
 
             if (that.account.id != that.transactions[i].to) {
-              that.transactions[i].amount = "-" + that.transactions[i].amount;
+              row['Amount'] = "(-" + row['Amount'] + ")";
             }
 
-            transactions.push(that.transactions[i]);
+            transactions.push(row);
           }
 
           that.transactions = transactions;

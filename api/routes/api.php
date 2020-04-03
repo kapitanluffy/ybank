@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Account;
+use App\Transaction;
 
 /*
   |--------------------------------------------------------------------------
@@ -42,11 +44,12 @@ Route::get('accounts/{id}/transactions', function ($id) {
         return response()->json(['error' => 'Account not found'], 404);
     }
 
-    $account = DB::table('transactions')
-             ->whereRaw("`from`=$id OR `to`=$id")
-             ->get();
+    $transactions = Transaction::with('recipient', 'sender')
+        ->where('from', $id)
+        ->orWhere('to', $id)
+        ->get();
 
-    return $account;
+    return $transactions;
 });
 
 Route::post('accounts/{id}/transactions', function (Request $request, $id) {
