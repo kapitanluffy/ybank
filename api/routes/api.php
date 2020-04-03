@@ -15,9 +15,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('accounts/{id}', function ($id) {
-    $account = DB::table('accounts')
-             ->whereRaw("id=$id")
-             ->get();
+    $account = DB::table('accounts')->find($id);
+
+    if (!$account) {
+        abort(404);
+    }
 
     return $account;
 });
