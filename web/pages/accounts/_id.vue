@@ -69,6 +69,10 @@
         </b-form>
       </b-card>
 
+      <b-alert v-model="hasErrorMessage" variant="danger" dismissible class="mt-3">
+        {{ errorMessage }}
+      </b-alert>
+
       <b-card class="mt-3" header="Payment History">
         <div v-if="loadingTransactions">loading transactions...</div>
         <b-table v-if="!loadingTransactions" striped hover :items="transactions"></b-table>
@@ -91,6 +95,9 @@ export default {
 
       account: null,
       transactions: null,
+
+      hasErrorMessage: false,
+      errorMessage: true,
 
       loadingAccount: true,
       loadingTransactions: true
@@ -148,10 +155,16 @@ export default {
     },
     onSubmit(evt) {
       var that = this;
+      this.hasErrorMessage = false;
 
       evt.preventDefault();
 
-      axios.post(api_server + `/api/accounts/${this.$route.params.id}/transactions`, this.payment);
+      axios
+        .post(api_server + `/api/accounts/${this.$route.params.id}/transactions`, this.payment)
+        .catch(function(error) {
+          that.hasErrorMessage = true;
+          that.errorMessage = error.response.data.error;
+        });
 
       that.payment = {};
       that.show = false;
