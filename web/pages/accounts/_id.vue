@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div class="container" v-if="loading">loading...</div>
+    <div class="container" v-if="loadingAccount">loading...</div>
 
-    <div class="container" v-if="!loading">
+    <div class="container" v-if="!loadingAccount">
       <b-card :header="'Welcome, ' + account.name" class="mt-3">
         <b-card-text>
           <div>
@@ -70,7 +70,8 @@
       </b-card>
 
       <b-card class="mt-3" header="Payment History">
-        <b-table striped hover :items="transactions"></b-table>
+        <div v-if="loadingTransactions">loading transactions...</div>
+        <b-table v-if="!loadingTransactions" striped hover :items="transactions"></b-table>
       </b-card>
     </div>
   </div>
@@ -91,7 +92,8 @@ export default {
       account: null,
       transactions: null,
 
-      loading: true
+      loadingAccount: true,
+      loadingTransactions: true
     };
   },
 
@@ -101,46 +103,49 @@ export default {
     axios
       .get(api_server + `/api/accounts/${this.$route.params.id}`)
       .then(function(response) {
-
-        if (response.status != 200) {
-          window.location = "/";
-          return;
-        }
-
         that.account = response.data;
 
-        if (that.account && that.transactions) {
-          that.loading = false;
+        if (that.account) {
+          that.loadingAccount = false;
         }
-      });
-
-    axios
-      .get(api_server + `/api/accounts/${that.$route.params.id}/transactions`)
-      .then(function(response) {
-        that["transactions"] = response.data;
-
-        var transactions = [];
-        for (let i = 0; i < that.transactions.length; i++) {
-          that.transactions[i].amount =
-            (that.account.currency === "usd" ? "$" : "€") +
-            that.transactions[i].amount;
-
-          if (that.account.id != that.transactions[i].to) {
-            that.transactions[i].amount = "-" + that.transactions[i].amount;
-          }
-
-          transactions.push(that.transactions[i]);
-        }
-
-        that.transactions = transactions;
-
-        if (that.account && that.transactions) {
-          that.loading = false;
-        }
+      })
+      .catch(function(error) {
+        window.location = "/";
+      })
+      .then(function() {
+        that.getTransactions()
       });
   },
 
   methods: {
+    getTransactions() {
+      var that = this;
+
+      axios
+        .get(api_server + `/api/accounts/${that.$route.params.id}/transactions`)
+        .then(function(response) {
+          that["transactions"] = response.data;
+
+          var transactions = [];
+          for (let i = 0; i < that.transactions.length; i++) {
+            that.transactions[i].amount =
+              (that.account.currency === "usd" ? "$" : "€") +
+              that.transactions[i].amount;
+
+            if (that.account.id != that.transactions[i].to) {
+              that.transactions[i].amount = "-" + that.transactions[i].amount;
+            }
+
+            transactions.push(that.transactions[i]);
+          }
+
+          that.transactions = transactions;
+
+          if (that.account && that.transactions) {
+            that.loadingTransactions = false;
+          }
+        });
+    },
     onSubmit(evt) {
       var that = this;
 
@@ -156,12 +161,10 @@ export default {
         axios
           .get(api_server + `/api/accounts/${this.$route.params.id}`)
           .then(function(response) {
-            if (response.status != 200) {
-              window.location = "/";
-              return
-            }
-
             that.account = response.data;
+          })
+          .catch(function(error) {
+            window.location = "/";
           });
 
         axios
