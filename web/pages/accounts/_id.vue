@@ -85,8 +85,6 @@
 import axios from "axios";
 import Vue from "vue";
 
-const api_server = 'http://192.168.0.12:8000';
-
 export default {
   data() {
     return {
@@ -108,7 +106,7 @@ export default {
     const that = this;
 
     axios
-      .get(api_server + `/api/accounts/${this.$route.params.id}`)
+      .get(process.env.API_SERVER + `/api/accounts/${this.$route.params.id}`)
       .then(function(response) {
         that.account = response.data;
 
@@ -129,7 +127,7 @@ export default {
       var that = this;
 
       axios
-        .get(api_server + `/api/accounts/${that.$route.params.id}/transactions`)
+        .get(process.env.API_SERVER + `/api/accounts/${that.$route.params.id}/transactions`)
         .then(function(response) {
           that["transactions"] = response.data;
 
@@ -160,7 +158,7 @@ export default {
       evt.preventDefault();
 
       axios
-        .post(api_server + `/api/accounts/${this.$route.params.id}/transactions`, this.payment)
+        .post(process.env.API_SERVER + `/api/accounts/${this.$route.params.id}/transactions`, this.payment)
         .catch(function(error) {
           that.hasErrorMessage = true;
           that.errorMessage = error.response.data.error;
