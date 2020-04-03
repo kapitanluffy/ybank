@@ -18,7 +18,7 @@ Route::get('accounts/{id}', function ($id) {
     $account = DB::table('accounts')->find($id);
 
     if (!$account) {
-        abort(404);
+        abort(404, 'Account not found');
     }
 
     $account = (array) $account;
@@ -39,22 +39,28 @@ Route::post('accounts/{id}/transactions', function (Request $request, $id) {
     $amount = $request->input('amount');
     $details = $request->input('details');
 
-    $account = DB::table('accounts')
-             ->whereRaw("id=$id")
-             ->update(['balance' => DB::raw('balance-' . $amount)]);
+    $recipient = DB::table('accounts')->find($to);
+    $account = DB::table('accounts')->find($id);
+    $update = 0;
 
-    $account = DB::table('accounts')
-             ->whereRaw("id=$to")
-             ->update(['balance' => DB::raw('balance+' . $amount)]);
+    if (!$recipient || !$account) {
+        abort(404, 'Account not found');
+    }
 
-    DB::table('transactions')->insert(
-        [
-            'from' => $id,
-            'to' => $to,
-            'amount' => $amount,
-            'details' => $details
-        ]
-    );
+    DB::table('accounts')
+        ->where("id", "=", $to)
+        ->update(['balance' => DB::raw('balance+' . $amount)]);
+
+    DB::table('accounts')
+        ->where("id", "=", $id)
+        ->update(['balance' => DB::raw('balance-' . $amount)]);
+
+    DB::table('transactions')->insert([
+        'from' => $id,
+        'to' => $to,
+        'amount' => $amount,
+        'details' => $details
+    ]);
 });
 
 Route::get('currencies', function () {
