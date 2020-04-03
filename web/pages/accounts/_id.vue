@@ -156,11 +156,12 @@ export default {
         axios
           .get(api_server + `/api/accounts/${this.$route.params.id}`)
           .then(function(response) {
-            if (!response.data.length) {
+            if (response.status != 200) {
               window.location = "/";
-            } else {
-              that.account = response.data[0];
+              return
             }
+
+            that.account = response.data;
           });
 
         axios
