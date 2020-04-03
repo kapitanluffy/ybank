@@ -80,6 +80,8 @@
 import axios from "axios";
 import Vue from "vue";
 
+const api_server = 'http://192.168.0.12:8000';
+
 export default {
   data() {
     return {
@@ -97,7 +99,7 @@ export default {
     const that = this;
 
     axios
-      .get(`http://localhost:8000/api/accounts/${this.$route.params.id}`)
+      .get(api_server + `/api/accounts/${this.$route.params.id}`)
       .then(function(response) {
 
         if (response.status != 200) {
@@ -113,11 +115,7 @@ export default {
       });
 
     axios
-      .get(
-        `http://localhost:8000/api/accounts/${
-          that.$route.params.id
-        }/transactions`
-      )
+      .get(api_server + `/api/accounts/${that.$route.params.id}/transactions`)
       .then(function(response) {
         that["transactions"] = response.data;
 
@@ -148,13 +146,7 @@ export default {
 
       evt.preventDefault();
 
-      axios.post(
-        `http://localhost:8000/api/accounts/${
-          this.$route.params.id
-        }/transactions`,
-
-        this.payment
-      );
+      axios.post(api_server + `/api/accounts/${this.$route.params.id}/transactions`, this.payment);
 
       that.payment = {};
       that.show = false;
@@ -162,7 +154,7 @@ export default {
       // update items
       setTimeout(() => {
         axios
-          .get(`http://localhost:8000/api/accounts/${this.$route.params.id}`)
+          .get(api_server + `/api/accounts/${this.$route.params.id}`)
           .then(function(response) {
             if (!response.data.length) {
               window.location = "/";
@@ -172,11 +164,7 @@ export default {
           });
 
         axios
-          .get(
-            `http://localhost:8000/api/accounts/${
-              that.$route.params.id
-            }/transactions`
-          )
+          .get(api_server + `/api/accounts/${that.$route.params.id}/transactions`)
           .then(function(response) {
             that["transactions"] = response.data;
 
