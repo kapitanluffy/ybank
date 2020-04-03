@@ -165,14 +165,17 @@ export default {
         .post(process.env.API_SERVER + `/api/accounts/${this.$route.params.id}/transactions`, this.payment)
         .then(function(response) {
           that.getTransactions()
+          that.account.balance = parseInt(that.account.balance) - parseInt(that.payment.amount)
         })
         .catch(function(error) {
           that.hasErrorMessage = true;
           that.errorMessage = error.response.data.error;
+        })
+        .then(() => {
+          that.payment = {};
+          that.show = false;
         });
 
-      that.payment = {};
-      that.show = false;
     }
   }
 };
