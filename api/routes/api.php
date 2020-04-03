@@ -53,13 +53,20 @@ Route::post('accounts/{id}/transactions', function (Request $request, $id) {
         return response()->json(['error' => 'Account not found'], 404);
     }
 
+    $credit = ($account->balance - $amount);
+    if ($credit < 0) {
+        return response()->json(['error' => 'Not enough funds to complete transaction'], 400);
+    }
+
+    $debit = ($recipient->balance + $amount);
+
     DB::table('accounts')
         ->where("id", "=", $to)
-        ->update(['balance' => DB::raw('balance+' . $amount)]);
+        ->update(['balance' => $debit]);
 
     DB::table('accounts')
         ->where("id", "=", $id)
-        ->update(['balance' => DB::raw('balance-' . $amount)]);
+        ->update(['balance' => $credit]);
 
     DB::table('transactions')->insert([
         'from' => $id,
