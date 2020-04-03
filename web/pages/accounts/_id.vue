@@ -99,14 +99,16 @@ export default {
     axios
       .get(`http://localhost:8000/api/accounts/${this.$route.params.id}`)
       .then(function(response) {
-        if (!response.data.length) {
-          window.location = "/";
-        } else {
-          that.account = response.data[0];
 
-          if (that.account && that.transactions) {
-            that.loading = false;
-          }
+        if (response.status != 200) {
+          window.location = "/";
+          return;
+        }
+
+        that.account = response.data;
+
+        if (that.account && that.transactions) {
+          that.loading = false;
         }
       });
 
