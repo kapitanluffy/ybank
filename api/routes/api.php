@@ -21,6 +21,8 @@ Route::get('accounts/{id}', function ($id) {
         abort(404);
     }
 
+    $account = (array) $account;
+
     return $account;
 });
 
