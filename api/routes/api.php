@@ -17,13 +17,11 @@ use App\Transaction;
 */
 
 Route::get('accounts/{id}', function ($id) {
-    $account = DB::table('accounts')->find($id);
+    $account = Account::find($id);
 
     if (!$account) {
         return response()->json(['error' => 'Account not found'], 404);
     }
-
-    $account = (array) $account;
 
     return $account;
 });
@@ -33,12 +31,13 @@ Route::post('accounts/', function (Request $request) {
     $balance = $request->input('balance');
 
     $account = ['name' => $name, 'balance' => $balance];
-    $account['id'] = DB::table('accounts')->insertGetId($account);
+    $account = Account::create($account);
 
     return $account;
 });
+
 Route::get('accounts/{id}/transactions', function ($id) {
-    $account = DB::table('accounts')->find($id);
+    $account = Account::find($id);
 
     if (!$account) {
         return response()->json(['error' => 'Account not found'], 404);
@@ -57,9 +56,8 @@ Route::post('accounts/{id}/transactions', function (Request $request, $id) {
     $amount = $request->input('amount');
     $details = $request->input('details');
 
-    $recipient = DB::table('accounts')->find($to);
-    $account = DB::table('accounts')->find($id);
-    $update = 0;
+    $recipient = Account::find($to);
+    $account = Account::find($id);
 
     if (!$recipient || !$account) {
         return response()->json(['error' => 'Account not found'], 404);
@@ -72,20 +70,20 @@ Route::post('accounts/{id}/transactions', function (Request $request, $id) {
 
     $debit = ($recipient->balance + $amount);
 
-    DB::table('accounts')
-        ->where("id", "=", $to)
-        ->update(['balance' => $debit]);
+    $recipient->balance = $debit;
+    $recipient->save();
 
-    DB::table('accounts')
-        ->where("id", "=", $id)
-        ->update(['balance' => $credit]);
+    $account->balance = $credit;
+    $account->save();
 
-    DB::table('transactions')->insert([
+    $transaction = Transaction::create([
         'from' => $id,
         'to' => $to,
         'amount' => $amount,
         'details' => $details
     ]);
+
+    return $transaction;
 });
 
 Route::get('currencies', function () {

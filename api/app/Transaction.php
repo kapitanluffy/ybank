@@ -7,6 +7,10 @@ use App\Account;
 
 class Transaction extends Model
 {
+    protected $fillable = ['from', 'to', 'details', 'amount'];
+
+    public $timestamps = false;
+
     public function sender()
     {
         return $this->belongsTo(Account::class, 'from')->select(['id', 'name']);
