@@ -75,7 +75,8 @@
 
       <b-card class="mt-3" header="Payment History">
         <div v-if="loadingTransactions">loading transactions...</div>
-        <b-table v-if="!loadingTransactions" striped hover :items="transactions"></b-table>
+        <b-table v-if="!loadingTransactions && transactions.length>0" striped hover :items="transactions"></b-table>
+        <div class="mx-auto font-italic w-25" v-if="!loadingTransactions && transactions.length==0">No transaction history</div>
       </b-card>
     </div>
   </div>
