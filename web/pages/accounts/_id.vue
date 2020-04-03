@@ -10,10 +10,7 @@
           </div>
           <div>
             Balance:
-            <code
-              >{{ account.currency === "usd" ? "$" : "€"
-              }}{{ account.balance }}</code
-            >
+            <code>{{ account.currency.symbol }}{{ account.balance }}</code>
           </div>
         </b-card-text>
         <b-button size="sm" variant="success" @click="show = !show"
@@ -129,7 +126,7 @@ export default {
       row['Account'] = transaction.sender.name + "#" + transaction.sender.id;
       row['Details'] = transaction.details;
 
-      row['Amount'] = (this.account.currency === "usd" ? "$" : "€") + transaction.amount;
+      row['Amount'] = this.account.currency.symbol + transaction.amount;
 
       if (this.account.id != transaction.to) {
         row['Account'] = transaction.recipient.name + "#" + transaction.recipient.id;

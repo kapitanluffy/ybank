@@ -17,7 +17,7 @@ use App\Transaction;
 */
 
 Route::get('accounts/{id}', function ($id) {
-    $account = Account::find($id);
+    $account = Account::with('currency')->find($id);
 
     if (!$account) {
         return response()->json(['error' => 'Account not found'], 404);
