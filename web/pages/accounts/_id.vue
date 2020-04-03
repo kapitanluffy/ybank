@@ -93,7 +93,7 @@ export default {
       payment: {},
 
       account: null,
-      transactions: null,
+      transactions: [],
 
       hasErrorMessage: false,
       errorMessage: true,
@@ -124,31 +124,32 @@ export default {
   },
 
   methods: {
+    createTransactionRow(transaction) {
+      let row = [];
+      row['Account'] = transaction.sender.name + "#" + transaction.sender.id;
+      row['Details'] = transaction.details;
+
+      row['Amount'] = (this.account.currency === "usd" ? "$" : "€") + transaction.amount;
+
+      if (this.account.id != transaction.to) {
+        row['Account'] = transaction.recipient.name + "#" + transaction.recipient.id;
+        row['Amount'] = "(-" + row['Amount'] + ")";
+      }
+
+      return row;
+    },
     getTransactions() {
       var that = this;
 
       axios
         .get(process.env.API_SERVER + `/api/accounts/${that.$route.params.id}/transactions`)
         .then(function(response) {
-          that["transactions"] = response.data;
+          let transactions = response.data;
 
-          var transactions = [];
-          for (let i = 0; i < that.transactions.length; i++) {
-            let row = [];
-            row['Account'] = that.transactions[i].sender.name + "#" + that.transactions[i].sender.id;
-            row['Details'] = that.transactions[i].details;
-
-            row['Amount'] = (that.account.currency === "usd" ? "$" : "€") + that.transactions[i].amount;
-
-            if (that.account.id != that.transactions[i].to) {
-              row['Account'] = that.transactions[i].recipient.name + "#" + that.transactions[i].recipient.id;
-              row['Amount'] = "(-" + row['Amount'] + ")";
-            }
-
-            transactions.push(row);
+          for (let i = 0; i < transactions.length; i++) {
+            let row = that.createTransactionRow(transactions[i]);
+            that.transactions.push(row);
           }
-
-          that.transactions = transactions;
 
           if (that.account && that.transactions) {
             that.loadingTransactions = false;
@@ -164,7 +165,8 @@ export default {
       axios
         .post(process.env.API_SERVER + `/api/accounts/${this.$route.params.id}/transactions`, this.payment)
         .then(function(response) {
-          that.getTransactions()
+          let transaction = that.createTransactionRow(response.data);
+          that.transactions.push(transaction);
           that.account.balance = parseInt(that.account.balance) - parseInt(that.payment.amount)
         })
         .catch(function(error) {

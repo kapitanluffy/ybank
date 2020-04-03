@@ -83,6 +83,8 @@ Route::post('accounts/{id}/transactions', function (Request $request, $id) {
         'details' => $details
     ]);
 
+    $transaction = Transaction::with('recipient', 'sender')->find($transaction['id']);
+
     return $transaction;
 });
 
