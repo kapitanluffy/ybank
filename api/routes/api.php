@@ -56,6 +56,10 @@ Route::post('accounts/{id}/transactions', function (Request $request, $id) {
     $amount = $request->input('amount');
     $details = $request->input('details');
 
+    if ($to == $id) {
+        return response()->json(['error' => 'Cannot transfer funds to self'], 400);
+    }
+
     $recipient = Account::find($to);
     $account = Account::find($id);
 
